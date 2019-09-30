@@ -44,8 +44,8 @@ resource "azurerm_subnet" "arm_subnet" {
   count = "${var.cloud_provider == "arm" ? 1 : 0}"
 
   name                 = "subnet-${var.global_environment}-${var.global_purpose}"
-  virtual_network_name = "${azurerm_virtual_network.arm_vnet.name}"
-  resource_group_name  = "${azurerm_resource_group.arm_rg.name}"
+  virtual_network_name = "${azurerm_virtual_network.arm_vnet[count.index].name}"
+  resource_group_name  = "${azurerm_resource_group.arm_rg[count.index].name}"
   address_prefix       = "${cidrsubnet(var.global_address_space, 8, 1)}"
 }
 
@@ -103,11 +103,11 @@ resource "azurerm_network_interface" "arm_nics" {
   name                      = "nic-${var.global_vm_apps}-${var.global_environment}-${var.global_purpose}-${count.index}"
   location                  = "${azurerm_resource_group.arm_rg[count.index].location}"
   resource_group_name       = "${azurerm_resource_group.arm_rg[count.index].name}"
-  network_security_group_id = "${azurerm_network_security_group.arm_nsg.id}"
+  network_security_group_id = "${azurerm_network_security_group.arm_nsg[count.index].id}"
 
   ip_configuration {
     name                          = "ipconf1"
-    subnet_id                     = "${azurerm_subnet.arm_subnet.id}"
+    subnet_id                     = "${azurerm_subnet.arm_subnet[count.index].id}"
     private_ip_address_allocation = "dynamic"
   }
 
@@ -141,7 +141,7 @@ resource "azurerm_network_security_rule" "arm_custom_rules" {
   count = "${length(var.arm_custom_security_rules) * (var.cloud_provider == "arm" ? 1 : 0)}"
 
   resource_group_name         = "${azurerm_resource_group.arm_rg[count.index].name}"
-  network_security_group_name = "${azurerm_network_security_group.arm_nsg.name}"
+  network_security_group_name = "${azurerm_network_security_group.arm_nsg[count.index].name}"
   name                        = "${lookup(var.arm_custom_security_rules[count.index], "name")}"
   priority                    = "${lookup(var.arm_custom_security_rules[count.index], "priority")}"
   direction                   = "${lookup(var.arm_custom_security_rules[count.index], "direction")}"
@@ -212,7 +212,7 @@ resource "azurerm_dns_a_record" "arm_vm_record" {
   count = "${var.vm_count * (var.cloud_provider == "arm" ? 1 : 0)}"
 
   name                = "${element(azurerm_virtual_machine.arm_vm.*.name, count.index)}"
-  zone_name           = "${azurerm_dns_zone.arm_dns_zone.name}"
+  zone_name           = "${azurerm_dns_zone.arm_dns_zone[count.index].name}"
   resource_group_name = "${azurerm_resource_group.arm_rg[count.index].name}"
   ttl                 = "300"
   records             = ["${element(azurerm_public_ip.arm_vm_pub_ip.*.ip_address, count.index)}"]
