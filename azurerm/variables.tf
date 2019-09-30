@@ -35,7 +35,7 @@ variable "cloud_region" {
   default = {
     arm = "francecentral"
     aws = "eu-central-1"
-    gcp = "eu-west1"
+    gcp = "europe-west1"
   }
 }
 
