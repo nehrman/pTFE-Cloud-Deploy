@@ -120,10 +120,10 @@ resource "aws_key_pair" "ec2_key" {
 resource "aws_instance" "ec2_vm" {
   count = "${var.vm_count * (var.cloud_provider == "aws" ? 1 : 0)}"
 
-  ami                         = "${data.aws_ami.ubuntu.id}"
+  ami                         = "${data.aws_ami.ubuntu[0].id}"
   instance_type               = "t2.large"
   subnet_id                   = "${aws_subnet.ec2_subnet[0].id}"
-  private_ip                  = "${cidrhost(aws_subnet.ec2_subnet.cidr_block, count.index + 100)}"
+  private_ip                  = "${cidrhost(aws_subnet.ec2_subnet[0].cidr_block, count.index + 100)}"
   associate_public_ip_address = "true"
   vpc_security_group_ids      = ["${aws_security_group.ec2_sg[0].id}"]
   key_name                    = "${var.global_key_name}"
