@@ -1,4 +1,4 @@
-# pTFE-Cloud-Deploy
+# Terraform MultiCloud Demo
 
 # Goals 
 Firstly, it was for my own learning of Terraform but after adding more and more functions, I wanted to share it.
