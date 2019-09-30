@@ -1,4 +1,5 @@
 data "aws_ami" "ubuntu" {
+  count = "${var.cloud_provider == "aws" ? 1 : 0}"
   most_recent = true
 
   filter {
@@ -13,3 +14,5 @@ data "aws_ami" "ubuntu" {
 
   owners = ["099720109477"] # Canonical
 }
+
+
