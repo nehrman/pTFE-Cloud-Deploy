@@ -55,6 +55,7 @@ resource "google_compute_instance" "gcp_vm" {
   network_interface {
     network    = "${google_compute_network.gcp_net[0].self_link}"
     network_ip = "${google_compute_address.gcp_int_addr[0].address}"
+    subnetwork = "${google_compute_subnetwork.gcp_subnets[0].self_link}"
 
     access_config {
       nat_ip = "${google_compute_address.gcp_ext_addr[0].address}"
