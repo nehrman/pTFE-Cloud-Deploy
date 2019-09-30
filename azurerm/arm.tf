@@ -190,7 +190,7 @@ resource "azurerm_virtual_machine" "arm_vm" {
 
     ssh_keys {
       path     = "/home/${var.global_admin_username}/.ssh/authorized_keys"
-      key_data = "${element(var.ssh_public_key, 0)}"
+      key_data = "${var.ssh_public_key}"
     }
   }
 
