@@ -124,8 +124,8 @@ resource "azurerm_network_security_group" "arm_nsg" {
   count = "${var.cloud_provider == "arm" ? 1 : 0}"
 
   name                = "sg-${var.global_environment}-${var.global_purpose}"
-  location            = "${azurerm_resource_group.arm_rg[count.index].location}"
-  resource_group_name = "${azurerm_resource_group.arm_rg[count.index].name}"
+  location            = "${azurerm_resource_group.arm_rg[0].location}"
+  resource_group_name = "${azurerm_resource_group.arm_rg[0].name}"
 
   tags = {
     environment = "${var.global_environment}"
@@ -140,8 +140,8 @@ resource "azurerm_network_security_group" "arm_nsg" {
 resource "azurerm_network_security_rule" "arm_custom_rules" {
   count = "${length(var.arm_custom_security_rules) * (var.cloud_provider == "arm" ? 1 : 0)}"
 
-  resource_group_name         = "${azurerm_resource_group.arm_rg[count.index].name}"
-  network_security_group_name = "${azurerm_network_security_group.arm_nsg[count.index].name}"
+  resource_group_name         = "${azurerm_resource_group.arm_rg[0].name}"
+  network_security_group_name = "${azurerm_network_security_group.arm_nsg[0].name}"
   name                        = "${lookup(var.arm_custom_security_rules[count.index], "name")}"
   priority                    = "${lookup(var.arm_custom_security_rules[count.index], "priority")}"
   direction                   = "${lookup(var.arm_custom_security_rules[count.index], "direction")}"
