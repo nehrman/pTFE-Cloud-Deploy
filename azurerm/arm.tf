@@ -12,7 +12,7 @@ resource "azurerm_resource_group" "arm_rg" {
   name     = "rg-${var.global_environment}-${var.global_purpose}"
   location = "${lookup(var.cloud_region, var.cloud_provider,)}"
 
-  tags {
+  tags = {
     environment = "${var.global_environment}"
     owner       = "${var.global_owner}"
     purpose     = "${var.global_purpose}"
@@ -30,7 +30,7 @@ resource "azurerm_virtual_network" "arm_vnet" {
   resource_group_name = "${azurerm_resource_group.arm_rg.name}"
   address_space       = ["${var.global_address_space}"]
 
-  tags {
+  tags = {
     environment = "${var.global_environment}"
     owner       = "${var.global_owner}"
     purpose     = "${var.global_purpose}"
@@ -88,7 +88,7 @@ resource "azurerm_public_ip" "arm_vm_pub_ip" {
   resource_group_name          = "${azurerm_resource_group.arm_rg.name}"
   public_ip_address_allocation = "static"
 
-  tags {
+  tags = {
     environment = "${var.global_environment}"
     owner       = "${var.global_owner}"
     purpose     = "${var.global_purpose}"
@@ -111,7 +111,7 @@ resource "azurerm_network_interface" "arm_nics" {
     private_ip_address_allocation = "dynamic"
   }
 
-  tags {
+  tags = {
     environment = "${var.global_environment}"
     owner       = "${var.global_owner}"
     purpose     = "${var.global_purpose}"
@@ -127,7 +127,7 @@ resource "azurerm_network_security_group" "arm_nsg" {
   location            = "${azurerm_resource_group.arm_rg.location}"
   resource_group_name = "${azurerm_resource_group.arm_rg.name}"
 
-  tags {
+  tags = {
     environment = "${var.global_environment}"
     owner       = "${var.global_owner}"
     purpose     = "${var.global_purpose}"
@@ -194,7 +194,7 @@ resource "azurerm_virtual_machine" "arm_vm" {
     }
   }
 
-  tags {
+  tags = {
     environment = "${var.global_environment}"
     owner       = "${var.global_owner}"
     purpose     = "${var.global_purpose}"
