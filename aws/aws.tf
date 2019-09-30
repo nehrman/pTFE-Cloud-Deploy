@@ -12,7 +12,7 @@ resource "aws_vpc" "ec2_vpc" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
 
-  tags {
+  tags = {
     name        = "vpc-${var.global_environment}-${var.global_purpose}"
     environment = "${var.global_environment}"
     owner       = "${var.global_owner}"
@@ -28,7 +28,7 @@ resource "aws_subnet" "ec2_subnet" {
   cidr_block              = "${cidrsubnet(var.global_address_space, 8, 1)}"
   map_public_ip_on_launch = true
 
-  tags {
+  tags = {
     name        = "subnet-${var.global_environment}-${var.global_purpose}"
     environment = "${var.global_environment}"
     owner       = "${var.global_owner}"
@@ -42,7 +42,7 @@ resource "aws_internet_gateway" "ec2_igw" {
 
   vpc_id = "${aws_vpc.ec2_vpc.id}"
 
-  tags {
+  tags = {
     name        = "igw-${var.global_environment}-${var.global_purpose}"
     environment = "${var.global_environment}"
     owner       = "${var.global_owner}"
@@ -61,7 +61,7 @@ resource "aws_route_table" "ec2_rtb" {
     gateway_id = "${aws_internet_gateway.ec2_igw.id}"
   }
 
-  tags {
+  tags = {
     name        = "route_table-${var.global_environment}-${var.global_purpose}"
     environment = "${var.global_environment}"
     owner       = "${var.global_owner}"
@@ -84,7 +84,7 @@ resource "aws_security_group" "ec2_sg" {
   description = "Security Group allowing access to pTFE instance"
   vpc_id      = "${aws_vpc.ec2_vpc.id}"
 
-  tags {
+  tags = {
     name        = "sg-${var.global_environment}-${var.global_purpose}"
     environment = "${var.global_environment}"
     owner       = "${var.global_owner}"
@@ -137,7 +137,7 @@ resource "aws_instance" "ec2_vm" {
     volume_size = "100"
   }
 
-  tags {
+  tags = {
     Name        = "${var.global_vm_apps}-${var.global_environment}-${var.global_purpose}-${count.index}"
     environment = "${var.global_environment}"
     owner       = "${var.global_owner}"
