@@ -17,8 +17,8 @@ resource "google_compute_subnetwork" "gcp_subnets" {
   name          = "testsubnet"
   ip_cidr_range = "${var.global_address_space}"
   region        = "${lookup(var.cloud_region, var.cloud_provider)}"
-  network       = "${google_compute_network.gcp_net.self_link}"
-}
+  network       = "${google_compute_network.gcp_net[0].self_link}"
+} 
 
 resource "google_compute_address" "gcp_int_addr" {
   count = "${var.cloud_provider == "gcp" ? 1 : 0}"
