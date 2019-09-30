@@ -24,6 +24,7 @@ resource "google_compute_address" "gcp_int_addr" {
   count = "${var.cloud_provider == "gcp" ? 1 : 0}"
 
   name         = "test-int"
+  region        = "${lookup(var.cloud_region, var.cloud_provider)}"
   subnetwork   = "${element(google_compute_subnetwork.gcp_subnets.*.self_link, count.index)}"
   address_type = "INTERNAL"
 }
@@ -32,6 +33,7 @@ resource "google_compute_address" "gcp_ext_addr" {
   count = "${var.cloud_provider == "gcp" ? 1 : 0}"
 
   name = "test-ext"
+  region        = "${lookup(var.cloud_region, var.cloud_provider)}"
 }
 
 // resource "google_compute_firewall" "gcp_custom_rules" {}
