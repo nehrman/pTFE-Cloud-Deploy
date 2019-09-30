@@ -26,8 +26,8 @@ resource "azurerm_virtual_network" "arm_vnet" {
   count = "${var.cloud_provider == "arm" ? 1 : 0}"
 
   name                = "vnet-${var.global_environment}-${var.global_purpose}"
-  location            = "${azurerm_resource_group.arm_rg.location}"
-  resource_group_name = "${azurerm_resource_group.arm_rg.name}"
+  location            = "${azurerm_resource_group.arm_rg[count.index].location}"
+  resource_group_name = "${azurerm_resource_group.arm_rg[count.index].name}"
   address_space       = ["${var.global_address_space}"]
 
   tags = {
@@ -55,8 +55,8 @@ resource "azurerm_storage_account" "arm_storageaccount" {
   count = "${var.cloud_provider == "arm" ? 1 : 0}"
 
   name                     = "stoaccnt${lower(var.global_environment)}${lower(var.global_purpose)}"
-  resource_group_name      = "${azurerm_resource_group.arm_rg.name}"
-  location                 = "${azurerm_resource_group.arm_rg.location}"
+  resource_group_name      = "${azurerm_resource_group.arm_rg[count.index].name}"
+  location                 = "${azurerm_resource_group.arm_rg[count.index].location}"
   account_tier             = "Standard"
   account_replication_type = "LRS"
 
@@ -74,7 +74,7 @@ resource "azurerm_dns_zone" "arm_dns_zone" {
   count = "${var.cloud_provider == "arm" ? 1 : 0}"
 
   name                = "demo${var.cloud_provider}.my-v-world.com"
-  resource_group_name = "${azurerm_resource_group.arm_rg.name}"
+  resource_group_name = "${azurerm_resource_group.arm_rg[count.index].name}"
   zone_type           = "Public"
 }
 
@@ -84,8 +84,8 @@ resource "azurerm_public_ip" "arm_vm_pub_ip" {
   count = "${var.vm_count * (var.cloud_provider == "arm" ? 1 : 0)}"
 
   name                         = "pubip-${var.global_vm_apps}-${var.global_environment}-${var.global_purpose}-${count.index}"
-  location                     = "${azurerm_resource_group.arm_rg.location}"
-  resource_group_name          = "${azurerm_resource_group.arm_rg.name}"
+  location                     = "${azurerm_resource_group.arm_rg[count.index].location}"
+  resource_group_name          = "${azurerm_resource_group.arm_rg[count.index].name}"
   public_ip_address_allocation = "static"
 
   tags = {
@@ -101,8 +101,8 @@ resource "azurerm_network_interface" "arm_nics" {
   count = "${var.vm_count * (var.cloud_provider == "arm" ? 1 : 0)}"
 
   name                      = "nic-${var.global_vm_apps}-${var.global_environment}-${var.global_purpose}-${count.index}"
-  location                  = "${azurerm_resource_group.arm_rg.location}"
-  resource_group_name       = "${azurerm_resource_group.arm_rg.name}"
+  location                  = "${azurerm_resource_group.arm_rg[count.index].location}"
+  resource_group_name       = "${azurerm_resource_group.arm_rg[count.index].name}"
   network_security_group_id = "${azurerm_network_security_group.arm_nsg.id}"
 
   ip_configuration {
@@ -124,8 +124,8 @@ resource "azurerm_network_security_group" "arm_nsg" {
   count = "${var.cloud_provider == "arm" ? 1 : 0}"
 
   name                = "sg-${var.global_environment}-${var.global_purpose}"
-  location            = "${azurerm_resource_group.arm_rg.location}"
-  resource_group_name = "${azurerm_resource_group.arm_rg.name}"
+  location            = "${azurerm_resource_group.arm_rg[count.index].location}"
+  resource_group_name = "${azurerm_resource_group.arm_rg[count.index].name}"
 
   tags = {
     environment = "${var.global_environment}"
@@ -140,7 +140,7 @@ resource "azurerm_network_security_group" "arm_nsg" {
 resource "azurerm_network_security_rule" "arm_custom_rules" {
   count = "${length(var.arm_custom_security_rules) * (var.cloud_provider == "arm" ? 1 : 0)}"
 
-  resource_group_name         = "${azurerm_resource_group.arm_rg.name}"
+  resource_group_name         = "${azurerm_resource_group.arm_rg[count.index].name}"
   network_security_group_name = "${azurerm_network_security_group.arm_nsg.name}"
   name                        = "${lookup(var.arm_custom_security_rules[count.index], "name")}"
   priority                    = "${lookup(var.arm_custom_security_rules[count.index], "priority")}"
@@ -159,8 +159,8 @@ resource "azurerm_virtual_machine" "arm_vm" {
   count = "${var.vm_count * (var.cloud_provider == "arm" ? 1 : 0)}"
 
   name                  = "${var.global_vm_apps}-${var.global_environment}-${var.global_purpose}-${count.index}"
-  location              = "${azurerm_resource_group.arm_rg.location}"
-  resource_group_name   = "${azurerm_resource_group.arm_rg.name}"
+  location              = "${azurerm_resource_group.arm_rg[count.index].location}"
+  resource_group_name   = "${azurerm_resource_group.arm_rg[count.index].name}"
   network_interface_ids = ["${element(azurerm_network_interface.arm_nics.*.id, count.index)}"]
   vm_size               = "Standard_DS1_V2"
 
@@ -213,7 +213,7 @@ resource "azurerm_dns_a_record" "arm_vm_record" {
 
   name                = "${element(azurerm_virtual_machine.arm_vm.*.name, count.index)}"
   zone_name           = "${azurerm_dns_zone.arm_dns_zone.name}"
-  resource_group_name = "${azurerm_resource_group.arm_rg.name}"
+  resource_group_name = "${azurerm_resource_group.arm_rg[count.index].name}"
   ttl                 = "300"
   records             = ["${element(azurerm_public_ip.arm_vm_pub_ip.*.ip_address, count.index)}"]
 }
