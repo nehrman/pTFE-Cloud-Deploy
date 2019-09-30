@@ -51,11 +51,11 @@ resource "google_compute_instance" "gcp_vm" {
   }
 
   network_interface {
-    network    = "${google_compute_network.gcp_net.self_link}"
-    network_ip = "${google_compute_address.gcp_int_addr.address}"
+    network    = "${google_compute_network.gcp_net[0].self_link}"
+    network_ip = "${google_compute_address.gcp_int_addr[0].address}"
 
     access_config {
-      nat_ip = "${google_compute_address.gcp_ext_addr.address}"
+      nat_ip = "${google_compute_address.gcp_ext_addr[0].address}"
     }
   }
 }
