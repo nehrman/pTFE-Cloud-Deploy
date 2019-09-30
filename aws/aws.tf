@@ -24,7 +24,7 @@ resource "aws_vpc" "ec2_vpc" {
 resource "aws_subnet" "ec2_subnet" {
   count = "${var.cloud_provider == "aws" ? 1 : 0}"
 
-  vpc_id                  = "${aws_vpc.ec2_vpc.id}"
+  vpc_id                  = "${aws_vpc.ec2_vpc[0].id}"
   cidr_block              = "${cidrsubnet(var.global_address_space, 8, 1)}"
   map_public_ip_on_launch = true
 
@@ -40,7 +40,7 @@ resource "aws_subnet" "ec2_subnet" {
 resource "aws_internet_gateway" "ec2_igw" {
   count = "${var.cloud_provider == "aws" ? 1 : 0}"
 
-  vpc_id = "${aws_vpc.ec2_vpc.id}"
+  vpc_id = "${aws_vpc.ec2_vpc[0].id}"
 
   tags = {
     name        = "igw-${var.global_environment}-${var.global_purpose}"
@@ -54,11 +54,11 @@ resource "aws_internet_gateway" "ec2_igw" {
 resource "aws_route_table" "ec2_rtb" {
   count = "${var.cloud_provider == "aws" ? 1 : 0}"
 
-  vpc_id = "${aws_vpc.ec2_vpc.id}"
+  vpc_id = "${aws_vpc.ec2_vpc[0].id}"
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = "${aws_internet_gateway.ec2_igw.id}"
+    gateway_id = "${aws_internet_gateway.ec2_igw[0].id}"
   }
 
   tags = {
@@ -73,8 +73,8 @@ resource "aws_route_table" "ec2_rtb" {
 resource "aws_route_table_association" "ec2_rtb_assoc" {
   count = "${var.cloud_provider == "aws" ? 1 : 0}"
 
-  subnet_id      = "${aws_subnet.ec2_subnet.id}"
-  route_table_id = "${aws_route_table.ec2_rtb.id}"
+  subnet_id      = "${aws_subnet.ec2_subnet[0].id}"
+  route_table_id = "${aws_route_table.ec2_rtb[0].id}"
 }
 
 resource "aws_security_group" "ec2_sg" {
@@ -82,7 +82,7 @@ resource "aws_security_group" "ec2_sg" {
 
   name        = "pTFE_sg"
   description = "Security Group allowing access to pTFE instance"
-  vpc_id      = "${aws_vpc.ec2_vpc.id}"
+  vpc_id      = "${aws_vpc.ec2_vpc[0].id}"
 
   tags = {
     name        = "sg-${var.global_environment}-${var.global_purpose}"
@@ -101,7 +101,7 @@ resource "aws_security_group_rule" "ec2_custom_rules" {
   protocol          = "${lookup(var.ec2_custom_security_rules[count.index], "protocol")}"
   cidr_blocks       = "${var.ec2_cidr_blocks}"
   description       = "${lookup(var.ec2_custom_security_rules[count.index], "description")}"
-  security_group_id = "${aws_security_group.ec2_sg.id}"
+  security_group_id = "${aws_security_group.ec2_sg[0].id}"
 }
 
 resource "aws_route53_zone" "ec2_route53_zone" {
@@ -122,10 +122,10 @@ resource "aws_instance" "ec2_vm" {
 
   ami                         = "${data.aws_ami.ubuntu.id}"
   instance_type               = "t2.large"
-  subnet_id                   = "${aws_subnet.ec2_subnet.id}"
+  subnet_id                   = "${aws_subnet.ec2_subnet[0].id}"
   private_ip                  = "${cidrhost(aws_subnet.ec2_subnet.cidr_block, count.index + 100)}"
   associate_public_ip_address = "true"
-  vpc_security_group_ids      = ["${aws_security_group.ec2_sg.id}"]
+  vpc_security_group_ids      = ["${aws_security_group.ec2_sg[0].id}"]
   key_name                    = "${var.global_key_name}"
 
   root_block_device {
@@ -149,7 +149,7 @@ resource "aws_instance" "ec2_vm" {
 resource "aws_route53_record" "ec2_route53_records" {
   count = "${var.vm_count * (var.cloud_provider == "aws" ? 1 : 0)}"
 
-  zone_id = "${aws_route53_zone.ec2_route53_zone.zone_id}"
+  zone_id = "${aws_route53_zone.ec2_route53_zone[0].zone_id}"
   name    = "${lookup(aws_instance.ec2_vm.*.tags[count.index], "Name")}"
   type    = "A"
   ttl     = "300"
