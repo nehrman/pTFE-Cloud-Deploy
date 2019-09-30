@@ -60,7 +60,7 @@ resource "azurerm_storage_account" "arm_storageaccount" {
   account_tier             = "Standard"
   account_replication_type = "LRS"
 
-  tags {
+  tags = {
     environment = "${var.global_environment}"
     owner       = "${var.global_owner}"
     purpose     = "${var.global_purpose}"
